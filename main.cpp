@@ -7,6 +7,7 @@
 using namespace std; 
 
 int main() {
+	const int TEXT_LINES = 20;
 	char userPlay;
 	int userSpace = 0;
 	int dieRoll = 0;
@@ -14,15 +15,21 @@ int main() {
 	int goodOrBad = 0;
 	int moneyAmt = 0;
 	int mostMoney = 0;
+	string mostName;
 	int p = 0;
+	bool isFinished = false;
 	ifstream inFS; // input file stream
+	string goodText;
+	string badText;
+	int randLine = 0;
+	int highestSpace = 0;
 
 	cout << "WELCOME TO MOKELAND!" << endl; 
 
 	while (userPlay != 'n') {
 		cout << "How many users will be playing: ";
 		cin >> numPlayers;
-		while (numPlayers > 20 || numPlayers < 1) {		// makes sure user number is between
+		while (numPlayers > 20 || numPlayers < 1) {		// makes sure user number is between 1-20
 			cout << "Sorry! There can only be a maximum of 20 players and a minimum of 1 player." << endl;
 			cout << "How many users will be playing: ";
 			cin >> numPlayers;
@@ -40,7 +47,8 @@ int main() {
 			money[x] = 0;	// intializes all subscripts of money to zero
 		}
 		
-		do {
+		isFinished = false;	// resets the value of variable so user can play again
+		while (!isFinished) {
 			for (p = 0; p < numPlayers; p++) {
 				cout << names[p] << " press enter to roll die!" << endl;
 				if (cin.get() == '\n') {	// waits for user to hit enter
@@ -93,32 +101,65 @@ int main() {
 					}
 					boardSpace[p] = dieRoll + boardSpace[p];
 					cout << names[p] << ": " << boardSpace[p] << endl; // ONLY FOR TESTING remove later!
+					
 					goodOrBad = (rand() % 2) + 1;
+					randLine = (rand() % 20) + 1;
+					
+					string goodText[20];
+					string badText[20];
+					
+					inFS.open("good.txt");
+					for (int g = 0; g < TEXT_LINES; g++) {
+						getline(inFS, goodText[g], '\n');	// places each of the lines from good.txt into an array
+					}
+					inFS.close();
+					
+					inFS.open("bad.txt");
+					for (int b = 0; b < TEXT_LINES; b++) {
+						getline(inFS, badText[b], '\n');	// places each of the lines from bad.txt into an array
+					}
+					inFS.close();
 					
 					if (goodOrBad == 1) { // good
-						cout << ":-D" << endl;
+						cout << " O   O " << endl << endl;
+						cout << "\\_____/" << endl;
+						cout << "Awesome! " << goodText[randLine] << endl;
 						moneyAmt = (rand() % 100000) + 1;
 						money[p] = money[p] + moneyAmt;
+						cout << "$" << moneyAmt << " added!" << endl;
 						cout << "You have: $" << money[p] << endl;
 					}
 					else { // bad
-						cout << ":-(" << endl;
+						cout << " O   O " << endl;
+						cout << " _____ " << endl;
+						cout << "/     \\" << endl;
+						cout << "You suck! " << badText[randLine] << endl;
 						moneyAmt = (rand() % 100000) + 1;
 						money[p] = money[p] - moneyAmt;
-						cout << "You have: $" << moneyAmt << endl;
+						cout << "$" << moneyAmt << " removed!" << endl;
+						cout << "You have: $" << money[p] << endl;
+					}
+					
+					if (boardSpace[p] >= 25) {
+						isFinished = true;
+						break;
 					}
 				}
 			}
-		} while (boardSpace[p] < 25);
+		}
 		
-		mostMoney = money[0];	
+		mostMoney = money[0];
+		mostName = names[0];
+		highestSpace = boardSpace[0];
 		
 		for (int i = 0; i < numPlayers; i++) {
 			if (money[i] > mostMoney) {
-				money[i] = mostMoney;
+				mostMoney = money[i];
+				mostName = names[i];
 			}
 		}
-		cout << mostMoney << endl;
+		cout << mostName << " had the most money with: $" << mostMoney << endl;
+		cout << names[p] << " was the only survivor till the end!" << endl << endl;
 		cout << "Do you want to play again? y/n" << endl;
 		cin >> userPlay;
 	}
