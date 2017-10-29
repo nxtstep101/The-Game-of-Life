@@ -1,8 +1,9 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <stdio.h>
 #include <cstdlib>
-#include <fstream>
+#include <fstream> 
 #include <ctime>
 using namespace std; 
 
@@ -18,30 +19,42 @@ int main() {
 	string mostName;
 	int p = 0;
 	bool isFinished = false;
-	ifstream inFS; // input file stream
-	string goodText;
-	string badText;
+	ifstream inFS; // inputs file stream
 	int randLine = 0;
 	int highestSpace = 0;
+	string goodText[TEXT_LINES];
+	string badText[TEXT_LINES];
+	
+	inFS.open("good.txt");
+	for (int g = 0; g < TEXT_LINES; g++) {
+		getline(inFS, goodText[g], '\n');	// places each of the lines from good.txt into an array
+	}
+	inFS.close();
+					
+	inFS.open("bad.txt");
+	for (int b = 0; b < TEXT_LINES; b++) {
+		getline(inFS, badText[b], '\n');	// places each of the lines from bad.txt into an array
+	}
+	inFS.close();
 
-	cout << "WELCOME TO MOKELAND!" << endl; 
-
-	while (userPlay != 'n') {
-		cout << "How many users will be playing: ";
+	cout << "WELCOME TO MOKELAND!" << endl;	
+	
+	while (tolower(userPlay) != 'n') {
+		cout << "HOW MANY PLAYERS WILL THERE BE: ";
 		cin >> numPlayers;
 		while (numPlayers > 20 || numPlayers < 1) {		// makes sure user number is between 1-20
 			cout << "Sorry! There can only be a maximum of 20 players and a minimum of 1 player." << endl;
-			cout << "How many users will be playing: ";
+			cout << "HOW MANY PEOPLE WILL BE PLAYING: ";
 			cin >> numPlayers;
 		}
 		
-		string names[numPlayers]; 	// names array
-		int boardSpace[numPlayers];	// boards array
-		int money[numPlayers];		// money array
+		string names[numPlayers]; 	// names, boardspace and money arrays
+		int boardSpace[numPlayers];
+		int money[numPlayers];		
 		cin.ignore(); 	// prevents the getline below from getting messed up
 		
 		for (int x = 0; x < numPlayers; x++) {
-			cout << "Enter name of player " << x + 1 << ": ";	// loop to have you input all of the players names
+			cout << "ENTER NAME OF PLAYER " << x + 1 << ": ";	// loop to have you input all of the players names
 			getline(cin, names[x]);
 			boardSpace[x] = 0;	// initializes all subscripts of boardSpace to zero
 			money[x] = 0;	// intializes all subscripts of money to zero
@@ -50,11 +63,12 @@ int main() {
 		isFinished = false;	// resets the value of variable so user can play again
 		while (!isFinished) {
 			for (p = 0; p < numPlayers; p++) {
-				cout << names[p] << " press enter to roll die!" << endl;
+				cout << string(40, '=') << endl;
+				cout << endl << names[p] << ", PRESS ENTER TO ROLL DIE.";
 				if (cin.get() == '\n') {	// waits for user to hit enter
 					srand(time(NULL));		// changes the seed everytime you roll
 					dieRoll = (rand() % 6) + 1;
-					cout << "You rolled a " << dieRoll << "!" << endl;
+					cout << "YOU ROLLED A " << dieRoll << "." << endl;
 					switch(dieRoll) {
 						case 1:
 							cout << " _________\n";
@@ -99,69 +113,61 @@ int main() {
 							cout << "|_________|\n\n";
 							break;
 					}
+					
 					boardSpace[p] = dieRoll + boardSpace[p];
-					cout << names[p] << ": " << boardSpace[p] << endl; // ONLY FOR TESTING remove later!
 					
-					goodOrBad = (rand() % 2) + 1;
-					randLine = (rand() % 20) + 1;
-					
-					string goodText[20];
-					string badText[20];
-					
-					inFS.open("good.txt");
-					for (int g = 0; g < TEXT_LINES; g++) {
-						getline(inFS, goodText[g], '\n');	// places each of the lines from good.txt into an array
-					}
-					inFS.close();
-					
-					inFS.open("bad.txt");
-					for (int b = 0; b < TEXT_LINES; b++) {
-						getline(inFS, badText[b], '\n');	// places each of the lines from bad.txt into an array
-					}
-					inFS.close();
-					
-					if (goodOrBad == 1) { // good
-						cout << " O   O " << endl << endl;
-						cout << "\\_____/" << endl;
-						cout << "Awesome! " << goodText[randLine] << endl;
-						moneyAmt = (rand() % 100000) + 1;
-						money[p] = money[p] + moneyAmt;
-						cout << "$" << moneyAmt << " added!" << endl;
-						cout << "You have: $" << money[p] << endl;
-					}
-					else { // bad
-						cout << " O   O " << endl;
-						cout << " _____ " << endl;
-						cout << "/     \\" << endl;
-						cout << "You suck! " << badText[randLine] << endl;
-						moneyAmt = (rand() % 100000) + 1;
-						money[p] = money[p] - moneyAmt;
-						cout << "$" << moneyAmt << " removed!" << endl;
-						cout << "You have: $" << money[p] << endl;
-					}
-					
-					if (boardSpace[p] >= 25) {
+					if (boardSpace[p] >= 25) {		// stops the loops from continuing to run once a player reaches the end of the board
 						isFinished = true;
 						break;
+					}
+					
+					cout << names[p] << " HAS ADVANCED TO SPACE " << boardSpace[p] << endl << endl;
+					
+					goodOrBad = (rand() % 2) + 1;	
+					randLine = (rand() % 20) + 1;
+									
+					if (goodOrBad == 1) {	// runs if user lands on a good space
+						cout << " O   O " << endl << endl;
+						cout << "\\_____/" << endl << endl;
+						cout << "AWESOME! " << goodText[randLine] << endl;
+						moneyAmt = (rand() % 100000) + 1;		
+						money[p] = money[p] + moneyAmt;
+						cout << "$" << moneyAmt << " WAS ADDED TO YOUR ACCOUNT." << endl;
+						cout << "YOU HAVE: $" << money[p] << " IN YOUR ACCOUNT." << endl;
+					}
+					
+					else {	// runs if user lands on a bad space
+						cout << " O   O " << endl;
+						cout << " _____ " << endl;
+						cout << "/     \\" << endl << endl;
+						cout << "YOU SUCK! " << badText[randLine] << endl;
+						moneyAmt = (rand() % 100000) + 1;
+						money[p] = money[p] - moneyAmt;
+						cout << "$" << moneyAmt << " WAS REMOVED FROM YOUR ACCOUNT." << endl;
+						cout << "YOU HAVE: $" << money[p] << " IN YOUR ACCOUNT." << endl;
 					}
 				}
 			}
 		}
 		
+		cout << "YOU COMPLETED THE MOKELAND BOARD! CONGRATS!" << endl << string(20, '=') << endl << endl;
+		
 		mostMoney = money[0];
 		mostName = names[0];
 		highestSpace = boardSpace[0];
 		
-		for (int i = 0; i < numPlayers; i++) {
+		for (int i = 0; i < numPlayers; i++) {		// determines who had the most money and who got to the end of the board
 			if (money[i] > mostMoney) {
-				mostMoney = money[i];
+				mostMoney = money[i];			
 				mostName = names[i];
 			}
 		}
-		cout << mostName << " had the most money with: $" << mostMoney << endl;
-		cout << names[p] << " was the only survivor till the end!" << endl << endl;
-		cout << "Do you want to play again? y/n" << endl;
+		
+		cout << "PLAYER WHO COMPLETED THE BOARD FIRST: " << names[p] << endl;
+		cout << "PLAYER WHO HAD THE MOST MONEY: " << mostName << " WITH $" << mostMoney << endl << endl;
+		cout << "DO YOU WANT TO PLAY AGAIN?" << endl << "Y or N:";
 		cin >> userPlay;
 	}
+	cout << endl << "THANKS FOR PLAYING!!!" << endl;
 	return 0;
 }
